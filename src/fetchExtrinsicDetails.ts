@@ -1,14 +1,18 @@
 import { ApiPromise } from "@polkadot/api";
 import { type ColdKeyTransaction } from "../data/ColdKeyReport";
-import { promises as fs } from "fs";
+import * as fs from "fs";
+import * as path from "path";
+import { RefundableTransaction } from "./types";
 
 const refundableMethods = ["addStake", "removeStake"];
+const directoryPath = path.join(__dirname, "dataOutput");
+const filePath = path.join(directoryPath, "refundableTxs.ts");
 
 export async function fetchExtrinsicDetails(
   api: ApiPromise,
   extrinsics: ColdKeyTransaction[]
 ) {
-  const refundableTxs = [];
+  const refundableTxs: RefundableTransaction[] = [];
   for (const extrinsic of extrinsics) {
     console.log(`🔹 Fetching Data for Extrinsic: ${extrinsic.extrinsic_id}`);
 
@@ -81,12 +85,23 @@ export async function fetchExtrinsicDetails(
       );
     }
 
-    const content = `export const refundableTxs = ${JSON.stringify(
-      refundableTxs,
-      null,
-      2
-    )} as const;\n`;
-
-    await fs.writeFile("refundableTxs.ts", content, "utf-8");
+    await writeToFile(refundableTxs);
   }
+}
+
+function writeToFile(refundableTxs: RefundableTransaction[]): void {
+  const content = `export const refundableTxs = ${JSON.stringify(
+    refundableTxs,
+    null,
+    2
+  )} as const;\n`;
+
+  // Ensure the directory exists
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
+
+  // Write the file
+  fs.writeFileSync(filePath, content, "utf8");
+  console.log(`File written successfully to ${filePath}`);
 }

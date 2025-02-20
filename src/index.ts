@@ -23,7 +23,11 @@ async function main() {
 
   const parsedReport = parseColdKeyReport();
 
-  fetchExtrinsicDetails(api, parsedReport.slice(0, 10));
+  await fetchExtrinsicDetails(api, parsedReport.slice(0, 2));
+
+  wsProvider.disconnect();
+
+  console.log("BeEbty boOpty done fetching extrinsic data.");
 }
 
 main().catch(console.error);
