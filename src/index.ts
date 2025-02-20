@@ -1,6 +1,8 @@
 import { config } from "dotenv";
 
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import { parseColdKeyReport } from "./parseColdKeyReport";
+import { fetchExtrinsicDetails } from "./fetchExtrinsicDetails";
 
 // Load environment variables
 config();
@@ -18,6 +20,10 @@ async function main() {
 
   console.log(`Connected to chain: ${chain}`);
   console.log(`Last block number: ${lastHeader.number}`);
+
+  const parsedReport = parseColdKeyReport();
+
+  fetchExtrinsicDetails(api, parsedReport.slice(0, 10));
 }
 
 main().catch(console.error);
